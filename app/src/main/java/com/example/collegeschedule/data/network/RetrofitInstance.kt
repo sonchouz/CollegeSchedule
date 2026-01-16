@@ -1,5 +1,6 @@
 package com.example.collegeschedule.data.network
 
+import com.example.collegeschedule.data.api.GroupsApi
 import com.example.collegeschedule.data.api.ScheduleApi
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -10,4 +11,5 @@ object RetrofitInstance {
         .addConverterFactory(GsonConverterFactory.create())
         .build()
     val api: ScheduleApi = retrofit.create(ScheduleApi::class.java)
+    val group: GroupsApi = retrofit.create(GroupsApi::class.java)
 }
