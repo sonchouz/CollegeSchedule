@@ -22,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.collegeschedule.data.dto.GroupsDto
@@ -38,16 +39,13 @@ fun HomeScreen(modifier: Modifier = Modifier) {
     var expanded by remember { mutableStateOf(false) }
     var selectedGroup by remember { mutableStateOf<GroupsDto?>(null) }
 
-
+    // поиск теперь на экране, а не в меню
     var searchQuery by remember { mutableStateOf("") }
 
-    val filteredGroups by remember(groups, searchQuery) {
-        mutableStateOf(
-            if (searchQuery.isBlank()) groups
-            else groups.filter { it.groupName.contains(searchQuery, ignoreCase = true) }
-        )
+    val filteredGroups = remember(groups, searchQuery) {
+        if (searchQuery.isBlank()) groups
+        else groups.filter { it.groupName.contains(searchQuery, ignoreCase = true) }
     }
-
 
     LaunchedEffect(Unit) {
         groupsLoading = true
@@ -70,6 +68,24 @@ fun HomeScreen(modifier: Modifier = Modifier) {
             groupsError != null -> Text("Ошибка: $groupsError")
             groups.isEmpty() -> Text("Групп нет")
             else -> {
+                // ✅ ПОИСК ВНЕ POPUP (клавиатура появляется нормально)
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    singleLine = true,
+                    label = { Text("Поиск группы") },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Search,
+                        capitalization = KeyboardCapitalization.None,
+                        autoCorrect = true
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(Modifier.height(8.dp))
+
+                // ✅ Dropdown только для выбора группы
                 ExposedDropdownMenuBox(
                     expanded = expanded,
                     onExpandedChange = { expanded = it }
@@ -85,25 +101,8 @@ fun HomeScreen(modifier: Modifier = Modifier) {
 
                     ExposedDropdownMenu(
                         expanded = expanded,
-                        onDismissRequest = {
-                            expanded = false
-                            searchQuery = ""
-                        }
+                        onDismissRequest = { expanded = false }
                     ) {
-
-                        OutlinedTextField(
-                            value = searchQuery,
-                            onValueChange = { searchQuery = it },
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Text,
-                                imeAction = ImeAction.Search
-                            ),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 8.dp, vertical = 6.dp)
-                        )
-
                         if (filteredGroups.isEmpty()) {
                             DropdownMenuItem(
                                 text = { Text("Ничего не найдено") },
@@ -117,7 +116,6 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                                     onClick = {
                                         selectedGroup = group
                                         expanded = false
-                                        searchQuery = ""
                                     }
                                 )
                             }
@@ -129,6 +127,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
 
         Spacer(Modifier.height(16.dp))
 
+        // расписание только после выбора группы
         ScheduleScreen(groupName = selectedGroup?.groupName)
     }
 }
