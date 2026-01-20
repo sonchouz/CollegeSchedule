@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
+import com.example.collegeschedule.ui.components.FavoritesScreen
 import com.example.collegeschedule.ui.components.HomeScreen
 import com.example.collegeschedule.ui.theme.CollegeScheduleTheme
 
@@ -62,7 +63,7 @@ fun CollegeScheduleApp() {
                     HomeScreen(modifier = Modifier.padding(innerPadding))
 
                 AppDestinations.FAVORITES ->
-                    Text("Избранные группы", modifier = Modifier.padding(innerPadding))
+                    FavoritesScreen(modifier = Modifier.padding(innerPadding))
 
                 AppDestinations.PROFILE ->
                     Text("Профиль студента", modifier = Modifier.padding(innerPadding))
